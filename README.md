@@ -13,6 +13,15 @@ cd script
 # chmod 777 ./start.sh 
 ```
 
+可以用clean脚本清除产生的数据
+
+```shell
+cd script
+./clean.sh 
+# 如果显示Permission denied，需要使用如下命令加权限
+# chmod 777 ./clean.sh 
+```
+
 测试完成后记得关闭进程。
 
 ```shell
