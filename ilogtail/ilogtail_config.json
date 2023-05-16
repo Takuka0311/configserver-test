@@ -1,0 +1,6 @@
+
+{
+    "ilogtail_configserver_address" : [
+      "127.0.0.1:8899"
+      ]
+}

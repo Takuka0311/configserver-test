@@ -1,0 +1,5 @@
+ilogtail/*
+!ilogtail/ilogtail_config.json
+configserver/*
+!configserver/ConfigServer
+!configserver/setting
