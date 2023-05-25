@@ -4,15 +4,13 @@ import (
 	"bytes"
 	"io"
 	"net/http"
-	"net/http/httptest"
 
-	"github.com/gin-gonic/gin"
 	"google.golang.org/protobuf/proto"
 
 	configserverproto "configserver_test/proto"
 )
 
-func DeleteAgentGroup(r *gin.Engine, groupName string, requestID string) (int, *configserverproto.DeleteAgentGroupResponse) {
+func DeleteAgentGroup(groupName string, requestID string) (int, *configserverproto.DeleteAgentGroupResponse) {
 	// data
 	reqBody := configserverproto.DeleteAgentGroupRequest{}
 	reqBody.RequestId = requestID
@@ -20,12 +18,11 @@ func DeleteAgentGroup(r *gin.Engine, groupName string, requestID string) (int, *
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/User/DeleteAgentGroup", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("DELETE", "http://127.0.0.1:8899/User/DeleteAgentGroup", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.DeleteAgentGroupResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)
@@ -33,7 +30,27 @@ func DeleteAgentGroup(r *gin.Engine, groupName string, requestID string) (int, *
 	return res.StatusCode, resBody
 }
 
-func CreateConfig(r *gin.Engine, config *configserverproto.ConfigDetail, requestID string) (int, *configserverproto.CreateConfigResponse) {
+func GetAgentGroup(groupName string, requestID string) (int, *configserverproto.GetAgentGroupResponse) {
+	// data
+	reqBody := configserverproto.GetAgentGroupRequest{}
+	reqBody.RequestId = requestID
+	reqBody.GroupName = groupName
+	reqBodyByte, _ := proto.Marshal(&reqBody)
+
+	// request
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "http://127.0.0.1:8899/User/GetAgentGroup", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
+
+	// response
+	resBodyByte, _ := io.ReadAll(res.Body)
+	resBody := new(configserverproto.GetAgentGroupResponse)
+	_ = proto.Unmarshal(resBodyByte, resBody)
+
+	return res.StatusCode, resBody
+}
+
+func CreateConfig(config *configserverproto.ConfigDetail, requestID string) (int, *configserverproto.CreateConfigResponse) {
 	// data
 	reqBody := configserverproto.CreateConfigRequest{}
 	reqBody.RequestId = requestID
@@ -41,12 +58,11 @@ func CreateConfig(r *gin.Engine, config *configserverproto.ConfigDetail, request
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/User/CreateConfig", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("POST", "http://127.0.0.1:8899/User/CreateConfig", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.CreateConfigResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)
@@ -54,7 +70,7 @@ func CreateConfig(r *gin.Engine, config *configserverproto.ConfigDetail, request
 	return res.StatusCode, resBody
 }
 
-func GetConfig(r *gin.Engine, configName string, requestID string) (int, *configserverproto.GetConfigResponse) {
+func GetConfig(configName string, requestID string) (int, *configserverproto.GetConfigResponse) {
 	// data
 	reqBody := configserverproto.GetConfigRequest{}
 	reqBody.RequestId = requestID
@@ -62,12 +78,11 @@ func GetConfig(r *gin.Engine, configName string, requestID string) (int, *config
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/User/GetConfig", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "http://127.0.0.1:8899/User/GetConfig", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.GetConfigResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)
@@ -75,7 +90,7 @@ func GetConfig(r *gin.Engine, configName string, requestID string) (int, *config
 	return res.StatusCode, resBody
 }
 
-func UpdateConfig(r *gin.Engine, config *configserverproto.ConfigDetail, requestID string) (int, *configserverproto.UpdateConfigResponse) {
+func UpdateConfig(config *configserverproto.ConfigDetail, requestID string) (int, *configserverproto.UpdateConfigResponse) {
 	// data
 	reqBody := configserverproto.UpdateConfigRequest{}
 	reqBody.RequestId = requestID
@@ -83,12 +98,12 @@ func UpdateConfig(r *gin.Engine, config *configserverproto.ConfigDetail, request
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/User/UpdateConfig", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("PUT", "http://127.0.0.1:8899/User/UpdateConfig", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
+
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.UpdateConfigResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)
@@ -96,7 +111,7 @@ func UpdateConfig(r *gin.Engine, config *configserverproto.ConfigDetail, request
 	return res.StatusCode, resBody
 }
 
-func DeleteConfig(r *gin.Engine, configName string, requestID string) (int, *configserverproto.DeleteConfigResponse) {
+func DeleteConfig(configName string, requestID string) (int, *configserverproto.DeleteConfigResponse) {
 	// data
 	reqBody := configserverproto.DeleteConfigRequest{}
 	reqBody.RequestId = requestID
@@ -104,12 +119,12 @@ func DeleteConfig(r *gin.Engine, configName string, requestID string) (int, *con
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/User/DeleteConfig", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("DELETE", "http://127.0.0.1:8899/User/DeleteConfig", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
+
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.DeleteConfigResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)
@@ -117,19 +132,19 @@ func DeleteConfig(r *gin.Engine, configName string, requestID string) (int, *con
 	return res.StatusCode, resBody
 }
 
-func ListConfigs(r *gin.Engine, requestID string) (int, *configserverproto.ListConfigsResponse) {
+func ListConfigs(requestID string) (int, *configserverproto.ListConfigsResponse) {
 	// data
 	reqBody := configserverproto.ListConfigsRequest{}
 	reqBody.RequestId = requestID
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/User/ListConfigs", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "http://127.0.0.1:8899/User/ListConfigs", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
+
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.ListConfigsResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)
@@ -137,7 +152,7 @@ func ListConfigs(r *gin.Engine, requestID string) (int, *configserverproto.ListC
 	return res.StatusCode, resBody
 }
 
-func ApplyConfigToAgentGroup(r *gin.Engine, configName string, groupName string, requestID string) (int, *configserverproto.ApplyConfigToAgentGroupResponse) {
+func ApplyConfigToAgentGroup(configName string, groupName string, requestID string) (int, *configserverproto.ApplyConfigToAgentGroupResponse) {
 	// data
 	reqBody := configserverproto.ApplyConfigToAgentGroupRequest{}
 	reqBody.RequestId = requestID
@@ -146,12 +161,12 @@ func ApplyConfigToAgentGroup(r *gin.Engine, configName string, groupName string,
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/User/ApplyConfigToAgentGroup", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("PUT", "http://127.0.0.1:8899/User/ApplyConfigToAgentGroup", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
+
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.ApplyConfigToAgentGroupResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)
@@ -159,7 +174,7 @@ func ApplyConfigToAgentGroup(r *gin.Engine, configName string, groupName string,
 	return res.StatusCode, resBody
 }
 
-func RemoveConfigFromAgentGroup(r *gin.Engine, configName string, groupName string, requestID string) (int, *configserverproto.RemoveConfigFromAgentGroupResponse) {
+func RemoveConfigFromAgentGroup(configName string, groupName string, requestID string) (int, *configserverproto.RemoveConfigFromAgentGroupResponse) {
 	// data
 	reqBody := configserverproto.RemoveConfigFromAgentGroupRequest{}
 	reqBody.RequestId = requestID
@@ -168,12 +183,12 @@ func RemoveConfigFromAgentGroup(r *gin.Engine, configName string, groupName stri
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/User/RemoveConfigFromAgentGroup", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("DELETE", "http://127.0.0.1:8899/User/RemoveConfigFromAgentGroup", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
+
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.RemoveConfigFromAgentGroupResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)
@@ -181,7 +196,7 @@ func RemoveConfigFromAgentGroup(r *gin.Engine, configName string, groupName stri
 	return res.StatusCode, resBody
 }
 
-func GetAppliedConfigsForAgentGroup(r *gin.Engine, groupName string, requestID string) (int, *configserverproto.GetAppliedConfigsForAgentGroupResponse) {
+func GetAppliedConfigsForAgentGroup(groupName string, requestID string) (int, *configserverproto.GetAppliedConfigsForAgentGroupResponse) {
 	// data
 	reqBody := configserverproto.GetAppliedConfigsForAgentGroupRequest{}
 	reqBody.RequestId = requestID
@@ -189,12 +204,12 @@ func GetAppliedConfigsForAgentGroup(r *gin.Engine, groupName string, requestID s
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/User/GetAppliedConfigsForAgentGroup", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "http://127.0.0.1:8899/User/GetAppliedConfigsForAgentGroup", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
+
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.GetAppliedConfigsForAgentGroupResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)
@@ -202,7 +217,7 @@ func GetAppliedConfigsForAgentGroup(r *gin.Engine, groupName string, requestID s
 	return res.StatusCode, resBody
 }
 
-func GetAppliedAgentGroups(r *gin.Engine, configName string, requestID string) (int, *configserverproto.GetAppliedAgentGroupsResponse) {
+func GetAppliedAgentGroups(configName string, requestID string) (int, *configserverproto.GetAppliedAgentGroupsResponse) {
 	// data
 	reqBody := configserverproto.GetAppliedAgentGroupsRequest{}
 	reqBody.RequestId = requestID
@@ -210,12 +225,12 @@ func GetAppliedAgentGroups(r *gin.Engine, configName string, requestID string) (
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/User/GetAppliedAgentGroups", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "http://127.0.0.1:8899/User/GetAppliedAgentGroups", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
+
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.GetAppliedAgentGroupsResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)
@@ -223,7 +238,7 @@ func GetAppliedAgentGroups(r *gin.Engine, configName string, requestID string) (
 	return res.StatusCode, resBody
 }
 
-func ListAgents(r *gin.Engine, groupName string, requestID string) (int, *configserverproto.ListAgentsResponse) {
+func ListAgents(groupName string, requestID string) (int, *configserverproto.ListAgentsResponse) {
 	// data
 	reqBody := configserverproto.ListAgentsRequest{}
 	reqBody.RequestId = requestID
@@ -231,12 +246,12 @@ func ListAgents(r *gin.Engine, groupName string, requestID string) (int, *config
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/User/ListAgents", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "http://127.0.0.1:8899/User/ListAgents", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
+
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.ListAgentsResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)

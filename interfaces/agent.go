@@ -2,43 +2,47 @@ package interfaces
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"net/http"
-	"net/http/httptest"
 
-	"github.com/gin-gonic/gin"
 	"google.golang.org/protobuf/proto"
 
 	configserverproto "configserver_test/proto"
 )
 
-func HeartBeat(r *gin.Engine, agent *configserverproto.Agent, requestID string) (int, *configserverproto.HeartBeatResponse) {
+func HeartBeat(agent *configserverproto.Agent, agentConfigs []*configserverproto.ConfigInfo,
+	pipelineConfigs []*configserverproto.ConfigInfo, requestID string) (int, *configserverproto.HeartBeatResponse) {
 	// data
 	reqBody := configserverproto.HeartBeatRequest{}
 	reqBody.RequestId = requestID
-	reqBody.AgentId = agent.AgentId
-	reqBody.AgentType = agent.AgentType
-	reqBody.RunningStatus = agent.RunningStatus
-	reqBody.StartupTime = agent.StartupTime
-	reqBody.Tags = agent.Tags
-	reqBody.Attributes = agent.Attributes
+	reqBody.AgentConfigs = agentConfigs
+	reqBody.AgentId = agent.GetAgentId()
+	reqBody.AgentType = agent.GetAgentType()
+	reqBody.Attributes = agent.GetAttributes()
+	reqBody.Interval = agent.GetInterval()
+	reqBody.PipelineConfigs = pipelineConfigs
+	reqBody.RunningStatus = agent.GetRunningStatus()
+	reqBody.StartupTime = agent.GetStartupTime()
+	reqBody.Tags = agent.GetTags()
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/Agent/HeartBeat", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("POST", "http://127.0.0.1:8899/Agent/HeartBeat", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.HeartBeatResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)
 
+	fmt.Println(res.Status)
+
 	return res.StatusCode, resBody
 }
 
-func FetchPipelineConfig(r *gin.Engine, configInfos []*configserverproto.ConfigCheckResult, requestID string) (int, *configserverproto.FetchPipelineConfigResponse) {
+func FetchPipelineConfig(configInfos []*configserverproto.ConfigCheckResult, requestID string) (int, *configserverproto.FetchPipelineConfigResponse) {
 	// data
 	reqBody := configserverproto.FetchPipelineConfigRequest{}
 	reqBody.RequestId = requestID
@@ -54,12 +58,11 @@ func FetchPipelineConfig(r *gin.Engine, configInfos []*configserverproto.ConfigC
 	reqBodyByte, _ := proto.Marshal(&reqBody)
 
 	// request
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/Agent/FetchPipelineConfig", bytes.NewBuffer(reqBodyByte))
-	r.ServeHTTP(w, req)
+	client := &http.Client{}
+	req, _ := http.NewRequest("POST", "http://127.0.0.1:8899/Agent/FetchPipelineConfig", bytes.NewBuffer(reqBodyByte))
+	res, _ := client.Do(req)
 
 	// response
-	res := w.Result()
 	resBodyByte, _ := io.ReadAll(res.Body)
 	resBody := new(configserverproto.FetchPipelineConfigResponse)
 	_ = proto.Unmarshal(resBodyByte, resBody)
